@@ -112,7 +112,7 @@ storage gateway - cached, stored or virtual tape library to s3 or glacier
 
 ### trad backup/restore - use s3 and glacier
 - copy to s3, ensure to set access, retention and encryption
-- 
+
 ### pilot light infrastruture is rds db, maybe directory services or exchange servers
 - light up ami's, enis( for static ips), elb for app and web servers to light up
 - essentially have a read-only db, then promote it, turn on the app/web servers, re-direct route 53 cname entries
@@ -171,5 +171,50 @@ AWS protect against Ddos, packet sniffing, man in middle, ip spoofing, port scan
 
 - can encrypt data but only on higher spec ec2 instances m3, c3, r3
 
+# route53
+## failover from a primary to secondary site
+### how to setup and test it
+- create two ec2 instances behind elb in two different zones
+- create a health check on the primary site
+- create in route 53 two alias entries setup with the same URL name with one as primary with the health check and the other as secondary
+- kill the primary site and watch it switchover to the secondary site
+
+## routing policy: latency routing
+- give the best user experience by routing users to closest AZ
+### how to setup and test it
+- create two alias entries with latency routing, setup to point to a different availability zone
+- run a browser to the URL and the closest AZ in the latency routing rules will show route from the closest AZ
 
 
+# AWS direct connect
+*hook straight into AWS*
+- lets you connect to private/public resources in AWS
+
+```
+* exam q why? perche? bakit? instead of VPN?
+- consistent network performance & bandwidth
+- not connecting over internet
+- dedicated private connection
+- VPN can die
+- VPN for low to moderate traffic
+- direct connect for serious traffic
+- all about bandwidth
+- dont' fall for trick saying its about resiliancy! go with the bandwidth answer
+```
+
+# networking
+**NOTE:** `one subnet = one AZ`
+
+3 addresses reserved by VPC *.*.*.1(router), *.*.*.2(dns),*.*.*.3(future tbd)
+
+## setup a vpc with private and public subnets
+- create VPC
+- create 2 subnets
+- create internet gateway and attach to VPC
+- create route table and add a route to the internet 
+- then associate a subnet to the route table with internet access
+- update the public subnet group to auto assign a public IP so any ec2 instances will be assigned an address
+
+# NAT gateways
+- use in production as they scale
+- no worries for security patching as AWS does it
