@@ -1,5 +1,5 @@
 # aws system operations - associate certification notes
-notes to self on aws certification
+_Notes to self on aws certification for aws system operations grokking_
 
 
 # metrics
@@ -94,6 +94,82 @@ e.g. ec2 scalability - increase size vs elastic - add instances
 - opsworks
 - ec2
 
+
+## ELB
+- for balancing across AZ
+- health check interval x (healthy, unhealthy) interval = total time
+- stick session ensures a user is routed to the same web server for a session(not enabled by default)
+- duration based session cookie created by the load balancer
+- or application generated cookie stickiness
+- question, why ASG adds servers but web server still having same load - stickiness set too long
+- can pre-configure ELB by requesting from AWS for .e.g load tests, with start and end dates
+
+# backup and DR
+services - regions, storage(s3, glacier, ebs, direct connect, storage gateway)
+storage gateway - cached, stored or virtual tape library to s3 or glacier
+- recovery time objective(rto) - time to recover
+- recovery point objective(rpo) - acceptable level of data loss
+
+### trad backup/restore - use s3 and glacier
+- copy to s3, ensure to set access, retention and encryption
+- 
+### pilot light infrastruture is rds db, maybe directory services or exchange servers
+- light up ami's, enis( for static ips), elb for app and web servers to light up
+- essentially have a read-only db, then promote it, turn on the app/web servers, re-direct route 53 cname entries
+
+
+
+# AWS services and automated backups
+- RDS - yes
+- following have auto backup
+- elastic cache - yes
+- redshift - yes
+
+ec2 - not auto, can take manual snapshots
+- snapshots are incremental!
+
+# upgrading ebs volume types
+- can take a snapshot, then restore it as a volume as a diff type, then attach it to an ec2 instance
+
+# storing logfiles and backups
+- store it in s3, then to glacier
+- cloudwatch
+- s3 logging
+
+# identity terms
+- federation - combine users from one service(active dir e.g) to another face book
+- identity broker - connect identities from one to another - need to write your own
+- identity store - id repo
+- identify - the id key
+
+```
+example EXAM Q - how does a web app, connect to aws and get temp access to s3
+
+answer 1- identity broker which we need to code goes to active dir first, then STS, then app gets temp access to s3
+
+answer 2 - identity broker which we need to code goes to active dir first, then app assumes a role which then gets a STS token, then app gets temp access to s3
+
+```
+
+
+# Security
+
+- shared responsibilities - they look after underlying infrastructure up to host level generally
+user responsible for whats on the cloud or connect to the cloud
+
+- AWS manage security of managed services - rds, redshift, elastic map reduce
+- IAAS - e.g. ec2, vpc, s3 under user control
+- account management (especially root account)- use MFA
+
+- storage decommissioning using these standards
+DoD 
+NIST
+
+AWS protect against Ddos, packet sniffing, man in middle, ip spoofing, port scanning
+
+- trusted advisor - only assesses IAM really
+
+- can encrypt data but only on higher spec ec2 instances m3, c3, r3
 
 
 
