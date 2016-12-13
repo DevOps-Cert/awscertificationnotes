@@ -1,4 +1,4 @@
-# awscertificationnotes
+# aws system operations - associate certification notes
 notes to self on aws certification
 
 
@@ -14,7 +14,7 @@ notes to self on aws certification
 - can use rds or cloudwath for metrics
 
 ## ELB metrics
-- monitors every 60 seconds
+- monitors every 60 **seconds**
 - if no data, nothing shows up
 - surge queue length - is requests pending to get to an instance
 - spillover count - number of requests being rejected by a full queue
