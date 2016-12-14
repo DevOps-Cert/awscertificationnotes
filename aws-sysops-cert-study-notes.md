@@ -28,12 +28,10 @@ _Notes to self for AWS sysops cerification grokking. Consume at own risk._
 ## memcached
 - multi-threaded - can handle loads up to 90%, so add more nodes if this happens
 - should be 0MB most of time for swap but add more if >50 MB
-- scale up(memory) or out(more nodes)
+- can scale up(memory) or out(more nodes)
 
 ## reddis
 - not multithreaded
-- take 90/cpu cores
-- uses reserved memories
 - scale out only(more nodes)
 
 ## evictions
@@ -142,13 +140,11 @@ ec2 - not auto, can take manual snapshots
 - identity store - id repo
 - identify - the id key
 
+### example EXAM Q - how does a web app, connect to aws and get temp access to s3
 ```
-example EXAM Q - how does a web app, connect to aws and get temp access to s3
-
 answer 1- identity broker which we need to code goes to active dir first, then STS, then app gets temp access to s3
 
 answer 2 - identity broker which we need to code goes to active dir first, then app assumes a role which then gets a STS token, then app gets temp access to s3
-
 ```
 
 
@@ -190,8 +186,8 @@ AWS protect against Ddos, packet sniffing, man in middle, ip spoofing, port scan
 *hook straight into AWS*
 - lets you connect to private/public resources in AWS
 
+### EXAM Q: exam q why? perche? bakit? instead of VPN?
 ```
-* exam q why? perche? bakit? instead of VPN?
 - consistent network performance & bandwidth
 - not connecting over internet
 - dedicated private connection
@@ -215,6 +211,85 @@ AWS protect against Ddos, packet sniffing, man in middle, ip spoofing, port scan
 - then associate a subnet to the route table with internet access
 - update the public subnet group to auto assign a public IP so any ec2 instances will be assigned an address
 
-# NAT gateways
+# NAT gateways vs instances 
+## NAT gateways
 - use in production as they scale
-- no worries for security patching as AWS does it
+- no worries for patching as AWS does it
+- no security groups to manage
+- auto assigned IP address
+- takes time to spin up
+- saves time from having to look after own NAT/DMZ
+- preferred use for enterprise
+
+
+## NAT instances
+- disable source/destination check
+- must be in public subnet
+- must have route from private subnet to the NAT
+- bottlenecks can be fixed with bigger instances
+- can use auto-scaling and multi-az zones 
+- always behind a security group
+
+
+# NAT and bastion
+- NAT provides net access to ec2 instances in private subnet reaching out to internet, while bastion is for providing ssh/rdp access to private ec2 instances from the internet
+- bastion is a locked down ec2 which allows access to private resources
+- Really lock down bastion server
+- NAT instances will always be behind a security group
+- NAT gateways does all the patching, has high availability
+
+### EXAM Q: how to set up high availability bastion box
+```
+- two public subnets in two different availiability zone
+- setup auto-scaling group set to 1
+- bring up ec2 instance in one availability zone
+- setup a route53 with a health check
+- in failure, bring up bastion in other availability zone
+```
+
+# VPC flow logs
+capture all traffic and reports to cloudwatch
+## to setup
+- select a VPC
+- add a flow log
+- create IAM role for the flow log via the flow log screen
+- go to cloudwatch and create a log group
+- go back to to the VPC and create the log
+- May need to also add a log stream to the log group
+
+# basic exam tips
+## VPC
+- VPC is a logical datacentre in VPC
+- VPC consists of IGW, route tables(where traffic is to be directed), network ACL, subnet, security groups
+- 1 subnet = 1 az
+- security groups are stateful, network ACL are stateless
+- can peer VPCs, also with other AWS accounts
+- no transitive peering e.g. can't go from one AWS VPC to another through another
+- security groups act as firewalls at EC2 instances
+- ACL act as firewalls at subnet level
+- IP range allocated in VPC via CIDR, is then further sub-divided in each subnet 
+- 1 route table: many subnets
+
+## NAT instances
+- NAT instances must be in public subnet, must have elastic IP address, must be a route from private subnet to the NAT instance
+- bottlenecks in NAT instances usually related to instance sizes
+- NAT instances high availability can be done using auto-scaling group, multi-az and scripted failover
+- behind a security group
+
+## NAT gateway
+- use this not NAT instances! 
+- autoscaled to 10GB/s, no patching, auto-assigned IP
+
+## Network ACL
+- each VPC has a ACL
+- default ACL allows all inbound/outbound traffic
+- each subnet requires a ACL
+- one ACL can be associated to many subnets 
+- e.g. one ACL: many subnets
+- block IP addresses using ACL
+
+## resilient architecture setup
+- have at least 2 public/private subnets in different availability zones
+- ELB in two different public subnets
+- put bastion with ASG set to 2, with route53 in front of it
+- NAT instances with one in each AZ
