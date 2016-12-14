@@ -30,3 +30,11 @@ secure logging - requires creation of a role with cloudwatch rights, then assign
 - can use message timers to delay individual messages
 - state of "inflight" when its taken by a consumer but not deleted from the queue
 - by default messages are retained for 4 days
+
+# EMR
+- runs on top of ec2
+
+## architecture
+- master node - distributes work to data and tasks to nodes
+- core node(slave node to run tasks and store data)
+- task node - only runs tasks

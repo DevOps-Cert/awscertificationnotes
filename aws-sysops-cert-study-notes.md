@@ -32,6 +32,7 @@ _Notes to self for AWS sysops cerification grokking. Consume at own risk._
 
 ## reddis
 - not multithreaded
+- so to work out usage its load/#of cores in processor
 - scale out only(more nodes)
 
 ## evictions
